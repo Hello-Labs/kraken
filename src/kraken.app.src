@@ -1,0 +1,17 @@
+{application, kraken,
+ [{description, "Yar har fiddle-dee-dee being a pirate is alright with me."},
+  {vsn, "0.1.0"},
+  {registered, [kraken_app_sup]},
+  {mod, { kraken_app, []}},
+  {applications,
+   [kernel,
+    stdlib,
+    diameter,
+    cowboy
+   ]},
+  {env,[{certfile, "/Users/jason.moore/Projects/freed/peer2.cert.pem"}]},
+  {modules, [kraken_app]},
+  {maintainers, []},
+  {licenses, []},
+  {links, []}
+ ]}.
