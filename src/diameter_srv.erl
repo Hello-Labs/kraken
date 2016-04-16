@@ -47,46 +47,28 @@ stop() ->
 %% @callback gen_server
 init(State) ->
         SvcName = ?MODULE,
-        % diameter:subscribe(SvcName),
         %atom_to_list(SvcName) ++ ".example.com"
         SvcOpts = [{'Origin-Host', origin_host()},
                         {'Origin-Realm', "localdomain"},
                         {'Vendor-Id', 193},
                         {'Product-Name', "Server"},
-                        {'Auth-Application-Id', [0,4]},
-                        % {'Acct-Application-Id', [4]},
-                        % {'Auth-Application-Id', [?DIAMETER_APP_ID_COMMON]},
-                        {application, [{alias, cc},
+                        {'Auth-Application-Id', [?DIAMETER_APP_ID_COMMON, rfc4006_cc:id()]},
+                        {application, [{alias, credit_control},
                                        {dictionary, rfc4006_cc},
-                                       {module, server_cb}]},
-                        % {application, [{alias, cc},
-                        %                {dictionary, rfc4006_cc},
-                        %                {module, server_cb}]},
+                                       {module, credit_control_cb}]},
                         {application, [{alias, diameter_base_app},
                                        % Need to change dictionary to get more capabilities
                                        {dictionary, ?DIAMETER_DICT_COMMON},
                                        {module, server_cb}]}],
 
-        CCSvcOpts = [{'Origin-Host', origin_host()},
-                        {'Origin-Realm', "localdomain"},
-                        {'Vendor-Id', 193},
-                        {'Product-Name', "Server"},
-                        {'Auth-Application-Id', [4]},
-                        % {'Acct-Application-Id', [4]},
-                        % {'Auth-Application-Id', [?DIAMETER_APP_ID_COMMON]},
-                        {application, [{alias, cc},
-                                       {dictionary, rfc4006_cc},
-                                       {module, server_cb}]}],
-
-
-        io:format("app id: ~p",[rfc4006_cc:id()]),
+        lager:warning("App 4006 app id: ~p",[rfc4006_cc:id()]),
         % {ssl_options, true},
         TransportOpts =  [{transport_module, diameter_tcp},
                           {transport_config, [
                             {reuseaddr, true},
                             % Some SSL options here....
                             {ip, {127,0,0,1}}, {port, 3869}] ++ cert_parameters()}],
-        % diameter:start(),
+        % TODO check result of start_service, blow up if it can't be started
         Re1 = diameter:start_service(SvcName, SvcOpts),
         % Re = diameter:start_service("CC", CCSvcOpts),
         %io:format("Re1: ~p~nre: ~p~n", [Re1,Re]),
