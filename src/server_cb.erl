@@ -44,7 +44,6 @@ handle_error(_Reason, _Request, _SvcName, _Peer) ->
 
 
 
-% TODO need call back for unknown request? without a guard that returns an error?
 handle_request(#diameter_packet{msg = Req, errors = []}, _SvcName, {_, Caps})
   when is_record(Req, diameter_base_RAR) ->
     #diameter_caps{origin_host = {OH,_},
@@ -61,8 +60,6 @@ handle_request(#diameter_packet{msg = Req, errors = []}, _SvcName, {_, Caps})
 
 handle_request(#diameter_packet{msg = Req, errors = []}, _SvcName, {_, Caps})
                   when is_record(Req, diameter_base_ACR) ->
-
-            io:fwrite("BEARDO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"),
 
             #diameter_caps{origin_host = {OH,_},
                            origin_realm = {OR,_}}
