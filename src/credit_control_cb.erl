@@ -23,7 +23,7 @@ peer_up(_SvcName, {PeerRef, Caps}, State) ->
             State.
 
 peer_down(_SvcName, {PeerRef, _}, State) ->
-            io:format("down: ~p~n", [PeerRef]),
+            lager:info("Credit Control Peer Down: ~p", [PeerRef]),
             State.
 
 pick_peer(_, _, _SvcName, _State) ->
@@ -49,12 +49,20 @@ handle_request(#diameter_packet{msg = Req, errors = []}, _SvcName, {_, Caps})
         = Caps,
     % TODO make call to actually get the response
 
+    lager:info("!!!!Credit Control Request Received: ~p", [lager:pr(Req, ?MODULE)]),
+
+
     #hello_CCR{'Session-Id' = Id,
-               'CC-Request-Number' = RequestNumber } = Req,
+               'CC-Request-Number' = RequestNumber,
+               'CC-Request-Type' = RequestType,
+               'Auth-Application-Id' = AuthApplicationId } = Req,
 
     Ans = #hello_CCA{'Session-Id' = Id,
                      'Origin-Host' = OH,
                      'Origin-Realm' = OR,
+                     'Auth-Application-Id' = AuthApplicationId,
+                     'Result-Code' = ?'DIAMETER_BASE_RESULT-CODE_SUCCESS',
+                     'CC-Request-Type' = RequestType,
                      'CC-Request-Number' = RequestNumber},
 
     {reply, Ans};

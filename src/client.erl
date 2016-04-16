@@ -39,6 +39,7 @@
 
 -include_lib("diameter/include/diameter.hrl").
 -include_lib("diameter/include/diameter_gen_base_rfc3588.hrl").
+-include_lib("rfc4006_cc.hrl").
 
 -export([start/1,     %% start a service
          start/2,     %%
@@ -57,6 +58,7 @@
          stop/0,
          call/0,
          cast/0,
+         call_ccr/0,
          r/0]).
 
 -define(DEF_SVC_NAME, ?MODULE).
@@ -69,8 +71,12 @@
                         {'Origin-Realm', "localdomain"},
                         {'Vendor-Id', 0},
                         {'Product-Name', "Client"},
-                        {'Auth-Application-Id', [0]},
+                        {'Auth-Application-Id', [0, 4]},
                         {string_decode, false},
+                        {application, [{alias, cc},
+                                       {dictionary, rfc4006_cc},
+                                       {module, client_cb}
+                                      ]},
                         {application, [{alias, common},
                                        {dictionary, diameter_gen_base_rfc3588},
                                        {module, client_cb}]}]).
@@ -122,6 +128,20 @@ call(Name) ->
 
 call() ->
     call(?DEF_SVC_NAME).
+
+% credit control request test call
+call_ccr() ->
+  Name = ?DEF_SVC_NAME,
+  SessionId = diameter:session_id(?L(Name)),
+    % TODO: What is service context id?
+
+  CCR = #hello_CCR{'Session-Id' = SessionId,
+    'Auth-Application-Id' = 4,
+    'Service-Context-Id' = "gilles@3gpp.org",
+    'CC-Request-Type' = ?'HELLO_CC-REQUEST-TYPE_INITIAL_REQUEST',
+    'CC-Request-Number' = 0},
+  lager:info("Message: ~p", [lager:pr(CCR, ?MODULE)]),
+  diameter:call(Name, cc, CCR, []).
 
 %% cast/1
 

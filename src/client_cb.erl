@@ -21,6 +21,7 @@
 
 -include_lib("diameter/include/diameter.hrl").
 -include_lib("diameter/include/diameter_gen_base_rfc3588.hrl").
+-include_lib("rfc4006_cc.hrl").
 
 %% diameter callbacks
 -export([peer_up/3,
@@ -62,10 +63,27 @@ prepare_request(#diameter_packet{msg = ['RAR' = T | Avps]}, _, {_, Caps}) ->
                {'Destination-Realm', DR}
              | Avps]};
 
+prepare_request(#diameter_packet{msg = Rec}, _, {_, Caps})
+  when is_record(Rec, hello_CCR) ->
+    #diameter_caps{origin_host = {OH, DH},
+                   origin_realm = {OR, DR}}
+        = Caps,
+    PreparedRequest = Rec#hello_CCR{'Origin-Host' = OH,
+                                    'Origin-Realm' = OR,
+                                    % 'Destination-Host' = [DH],
+                                    'Destination-Realm' = DR},
+    lager:info("OH: ~p, ~p, ~p, ~p ~n", [OH, DH, OR, DR]),
+
+    lager:info("Caps: ~p~n", [lager:pr(Caps, ?MODULE)]),
+
+    lager:info("Credit control prepare: ~p~n", [lager:pr(PreparedRequest, ?MODULE)]),
+    {send, PreparedRequest};
+
 prepare_request(#diameter_packet{msg = Rec}, _, {_, Caps}) ->
     #diameter_caps{origin_host = {OH, DH},
                    origin_realm = {OR, DR}}
         = Caps,
+    lager:info("Prepare request message: ~p", [lager:pr(Rec, ?MODULE)]),
 
     {send, Rec#diameter_base_RAR{'Origin-Host' = OH,
                                  'Origin-Realm' = OR,
@@ -85,7 +103,7 @@ handle_answer(#diameter_packet{msg = Msg}, _Request, _SvcName, _Peer) ->
 %% handle_error/4
 
 handle_error(Reason, _Request, _SvcName, _Peer) ->
-    io:format("In callback up: ~p~n", [Reason]),
+    io:format("Error: ~p~n", [Reason]),
     {error, Reason}.
 
 %% handle_request/3
