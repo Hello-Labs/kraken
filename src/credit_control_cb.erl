@@ -65,6 +65,8 @@ handle_request(#diameter_packet{msg = Req, errors = []}, _SvcName, {_, Caps})
                      'CC-Request-Type' = RequestType,
                      'CC-Request-Number' = RequestNumber},
 
+    % TODO if this is a terminate, we need to evict the session from the session store.
+
     {reply, Ans};
 
 

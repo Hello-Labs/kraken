@@ -67,7 +67,7 @@ init(State) ->
                           {transport_config, [
                             {reuseaddr, true},
                             % Some SSL options here....
-                            {ip, {127,0,0,1}}, {port, 3869}] ++ cert_parameters()}],
+                            {ip, {127,0,0,1}}, {port, 3868}] ++ cert_parameters()}],
         % TODO check result of start_service, blow up if it can't be started
         Re1 = diameter:start_service(SvcName, SvcOpts),
         % Re = diameter:start_service("CC", CCSvcOpts),

@@ -1,6 +1,6 @@
 {application, kraken,
  [{description, "Yar har fiddle-dee-dee being a pirate is alright with me."},
-  {vsn, "0.1.0"},
+  {vsn, "0.2.0"},
   {registered, [kraken_app_sup]},
   {mod, { kraken_app, []}},
   {applications,

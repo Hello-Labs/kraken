@@ -5,6 +5,9 @@ TODO
 - How to have an endpoint to receive receive ASRs and RARs
 - As callback to acr
 - Have place to report errors/status
+- What to do about a session store? Do we need to care?
+- Need to have a list of expected peers and notifications about their status
+- Tests? I have no idea where to start with this one.
 
 Done
 -------
