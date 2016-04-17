@@ -10,7 +10,7 @@
     diameter,
     cowboy
    ]},
-  {env,[{certfile, "/Users/jason.moore/Projects/freed/peer2.cert.pem"}]},
+  {env,[]},
   {modules, [kraken_app]},
   {maintainers, []},
   {licenses, []},

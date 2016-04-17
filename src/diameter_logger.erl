@@ -1,11 +1,15 @@
 -module(diameter_logger).
 -behaviour(gen_event).
 
+-include_lib("diameter/include/diameter.hrl").
+-include_lib("diameter/include/diameter_gen_base_rfc3588.hrl").
+-include_lib("rfc4005_nas.hrl").
+-include_lib("rfc4006_cc.hrl").
+
 -export([init/1, handle_event/2, terminate/2,
   handle_info/2, handle_call/2, code_change/3]).
 
 init(Application) ->
-  % TODO actually write this to a log....
   diameter:subscribe(Application),
   {ok, none}.
 
@@ -18,9 +22,14 @@ handle_info({diameter_event, DiameterApp, start}, State) ->
   {ok, State};
 
 handle_info({diameter_event, DiameterApp, Parameters}, State) when is_tuple(Parameters) ->
-  List = tuple_to_list(Parameters),
-  Action = hd(List),
-  {log_diameter_action(DiameterApp, Action, List), State};
+  % lager:info("Diameter Event ~p Params ~p", [DiameterApp, lager:pr(Parameters, ?MODULE)]),
+  Action = element(1, Parameters),
+  case Action of
+    up -> log_peer_action(DiameterApp, Action, Parameters);
+    down -> log_peer_action(DiameterApp, Action, Parameters);
+    _ -> log_diameter_action(DiameterApp, Action, Parameters)
+  end,
+  {ok, State};
 
 handle_info(Info, State) ->
   io:format("Diameter Info ~p~n", [Info]),
@@ -35,9 +44,14 @@ code_change(_OldVsn, State, _Extra) ->
 terminate(_Args, _State) ->
   ok.
 
-log_diameter_action(DiameterApp, up, _Parameters) ->
-  lager:info("Diameter Peer Up App: ~p Peer: ???", [DiameterApp]),
-  ok;
+remote_host(Parameters) ->
+  {_, Caps} = element(3, Parameters),
+  #diameter_caps{origin_host = {_, DH}, origin_realm = {_, _}} = Caps,
+  DH.
+
+log_peer_action(DiameterApp, Action, Parameters) ->
+  lager:info("Diameter Peer state=Action app=~p peer=~p", [DiameterApp, remote_host(Parameters)]),
+  ok.
 
 log_diameter_action(DiameterApp, Action, _Parameters) ->
   lager:info("Diameter Event: App: ~p Action: ~p", [DiameterApp, Action]),

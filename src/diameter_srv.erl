@@ -60,14 +60,12 @@ init(State) ->
                                        % Need to change dictionary to get more capabilities
                                        {dictionary, ?DIAMETER_DICT_COMMON},
                                        {module, server_cb}]}],
-
-        lager:warning("App 4006 app id: ~p",[rfc4006_cc:id()]),
         % {ssl_options, true},
         TransportOpts =  [{transport_module, diameter_tcp},
                           {transport_config, [
                             {reuseaddr, true},
                             % Some SSL options here....
-                            {ip, {127,0,0,1}}, {port, 3868}] ++ cert_parameters()}],
+                            {ip, {127,0,0,1}}, tcp_port()] ++ ssl_parameters()}],
         % TODO check result of start_service, blow up if it can't be started
         Re1 = diameter:start_service(SvcName, SvcOpts),
         % Re = diameter:start_service("CC", CCSvcOpts),
@@ -78,15 +76,34 @@ init(State) ->
        {ok, State}.
 
 origin_host() ->
-  "peer2.localdomain".
+  get_env_value(origin_host, "localhost.localdomain").
 
-cert_parameters() ->
-  [].
+tcp_port() ->
+  {port, get_env_value(port, 3868)}.
+
+
+ssl_parameters() ->
+  case application:get_env(use_ssl) of
+    {ok, true} -> [{ssl_options, true}];
+    _ -> []
+  end.
   % {_, CertFile} = application:get_env(certfile),
   % io:format("app id: ~p",[?DIAMETER_APP_ID_COMMON]),
   % [{certfile, CertFile},
   %  {keyfile, "/Users/jason.moore/Projects/freed/peer2.key.pem"},
   %  {cacertfile, "/Users/jason.moore/Projects/freed/cacert.pem"}].
+
+get_env_value(Key) ->
+  case application:get_env(kraken, Key) of
+    {ok, Value} -> Value;
+    _ -> unknown
+  end.
+
+get_env_value(Key, Default) ->
+   case application:get_env(Key) of
+    {ok, Value} -> Value;
+    _ -> Default
+  end.
 
 %% @callback gen_server
 handle_call(_Req, _From, State) ->
