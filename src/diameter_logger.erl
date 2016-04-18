@@ -50,7 +50,7 @@ remote_host(Parameters) ->
   DH.
 
 log_peer_action(DiameterApp, Action, Parameters) ->
-  lager:info("Diameter Peer state=Action app=~p peer=~p", [DiameterApp, remote_host(Parameters)]),
+  lager:info("Diameter Peer state=~p app=~p peer=~p", [Action, DiameterApp, remote_host(Parameters)]),
   ok.
 
 log_diameter_action(DiameterApp, Action, _Parameters) ->

@@ -19,8 +19,8 @@
 -define(UNEXPECTED, erlang:error({unexpected, ?MODULE, ?LINE})).
 
 peer_up(_SvcName, {PeerRef, Caps}, State) ->
-            io:format("In callback up: ~p~n", [PeerRef]),
-            io:format("Caps: ~p~n", [Caps]),
+            % io:format("In callback up: ~p~n", [PeerRef]),
+            % io:format("Caps: ~p~n", [Caps]),
             State.
 
 peer_down(_SvcName, {PeerRef, _}, State) ->

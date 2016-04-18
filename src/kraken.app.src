@@ -8,7 +8,8 @@
     stdlib,
     lager,
     diameter,
-    cowboy
+    cowboy,
+    jsone
    ]},
   {env,[]},
   {modules, [kraken_app]},

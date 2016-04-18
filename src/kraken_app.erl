@@ -15,17 +15,22 @@
 %%====================================================================
 
 start(_StartType, _StartArgs) ->
-    Dispatch = cowboy_router:compile([
-              {'_', [{"/", web_ping_handler, []}]}
-      ]),
-    {ok, _} = cowboy:start_http(my_http_listener, 100, [{port, 8080}],
-            [{env, [{dispatch, Dispatch}]}]
-    ),
-    kraken_sup:start_link().
+  % TODO only add test harnesses if in development
+  client:start(),
+  client:connect(tcp),
+  Dispatch = cowboy_router:compile([
+            {'_', [{"/test/pcef", pcef_test_harness, []},
+                   {"/", web_ping_handler, []}
+                   ]}
+    ]),
+  {ok, _} = cowboy:start_http(my_http_listener, 100, [{port, 8080}],
+          [{env, [{dispatch, Dispatch}]}]
+  ),
+  kraken_sup:start_link().
 
 %%--------------------------------------------------------------------
 stop(_State) ->
-    ok.
+  ok.
 
 %%====================================================================
 %% Internal functions
