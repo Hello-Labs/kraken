@@ -28,7 +28,7 @@ handle(Req, State) ->
   CCAList = lists:zip(record_info(fields, hello_CCA), tl(tuple_to_list(CCA))),
   % lager:info("CCAList: ~p", [CCAList]),
 
-  case jsone:try_encode([CCAList]) of
+  case jsone:try_encode(CCAList) of
     {error, EncodeError} ->
       lager:info("Failed to encode reponse: ~p", [EncodeError]),
       ResponseBody = jsone:encode([{status, error}]);
