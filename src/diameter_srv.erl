@@ -19,6 +19,7 @@
 -export([code_change/3]).
 -export([stop/0, terminate/2]).
 
+
 % TODO: If unnamed server, remove definition below.
 -define(SERVER, ?MODULE).
 %%%.

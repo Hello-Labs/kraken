@@ -58,6 +58,7 @@
          stop/0,
          call/0,
          cast/0,
+         call_ccr/1,
          call_ccr/0,
          r/0]).
 
@@ -130,18 +131,27 @@ call() ->
     call(?DEF_SVC_NAME).
 
 % credit control request test call
-call_ccr() ->
+call_ccr(Parameters) ->
   Name = ?DEF_SVC_NAME,
   SessionId = diameter:session_id(?L(Name)),
     % TODO: What is service context id?
 
-  CCR = #hello_CCR{'Session-Id' = SessionId,
-    'Auth-Application-Id' = 4,
-    'Service-Context-Id' = "gilles@3gpp.org",
-    'CC-Request-Type' = ?'HELLO_CC-REQUEST-TYPE_INITIAL_REQUEST',
-    'CC-Request-Number' = 0},
+  Defaults = [
+    {'Session-Id', SessionId},
+    {'Auth-Application-Id', 4},
+    {'Service-Context-Id', "gilles@3gpp.org"},
+    {'CC-Request-Type', ?'HELLO_CC-REQUEST-TYPE_INITIAL_REQUEST'},
+    {'CC-Request-Number', 0}],
+
+  lager:info("CCR Parameters: ~p", [Parameters]),
+
+  CCR = dia_recs:'#fromlist-hello_CCR'(Parameters ++ Defaults),
+
   lager:info("Message: ~p", [lager:pr(CCR, ?MODULE)]),
   diameter:call(Name, cc, CCR, []).
+
+call_ccr() ->
+  call_ccr([{'Session-Id', "Blahdfrsdf;blahsdf@localdomain"}]).
 
 %% cast/1
 

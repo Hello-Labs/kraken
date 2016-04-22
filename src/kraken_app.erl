@@ -18,8 +18,9 @@ start(_StartType, _StartArgs) ->
   % TODO only add test harnesses if in development
   client:start(),
   client:connect(tcp),
+
   Dispatch = cowboy_router:compile([
-            {'_', [{"/test/pcef", pcef_test_harness, []},
+            {'_', [{"/test/pcef/ccr", pcef_test_harness_ccr, []},
                    {"/", web_ping_handler, []}
                    ]}
     ]),
